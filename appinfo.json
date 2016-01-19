@@ -9,6 +9,7 @@
   "watchapp": {
     "watchface": false
   },
+  "capabilities": [ "health" ],
   "appKeys": {
     "dummy": 0
   },
