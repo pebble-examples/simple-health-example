@@ -1,0 +1,18 @@
+{
+  "uuid": "8C488329-0A39-4A07-81B7-D257567BC3C5",
+  "shortName": "Simple Health Example",
+  "longName": "Simple Health Example",
+  "companyName": "Pebble",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["basalt", "chalk"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
