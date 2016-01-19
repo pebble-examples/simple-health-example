@@ -9,7 +9,7 @@ static HealthValue get_metric_if_available(HealthMetric metric) {
   
   HealthServiceAccessibilityMask result = 
       health_service_metric_accessible(metric, s_launch_time, time_now);
-  if(result != HealthServiceAccessibilityMaskAvailable) {
+  if((result & HealthServiceAccessibilityMaskAvailable) != 0) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "No data available for metric %d: reason: %d", 
             (int)metric, (int)result);
   }
