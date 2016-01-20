@@ -5,11 +5,16 @@ static time_t s_launch_time;
 static bool s_health_available;
 
 static HealthValue get_metric_if_available(HealthMetric metric) {
+  if(!s_health_available) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Health not available!");
+    return (HealthValue)0;
+  }
+
   time_t time_now = time(NULL);
   
   HealthServiceAccessibilityMask result = 
       health_service_metric_accessible(metric, s_launch_time, time_now);
-  if((result & HealthServiceAccessibilityMaskAvailable) != 0) {
+  if(result != HealthServiceAccessibilityMaskAvailable) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "No data available for metric %d: reason: %d", 
             (int)metric, (int)result);
   }
