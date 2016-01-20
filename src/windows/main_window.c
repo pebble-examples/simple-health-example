@@ -34,7 +34,7 @@ static void window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   s_value_layer = text_layer_create(grect_inset(bounds, 
-                                                GEdgeInsets(40, 0, 0, 0)));
+                                                GEdgeInsets(50, 0, 0, 0)));
   text_layer_set_text_alignment(s_value_layer, GTextAlignmentCenter);
   text_layer_set_text_color(s_value_layer, GColorWhite);
   text_layer_set_background_color(s_value_layer, GColorClear);
@@ -43,7 +43,7 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_value_layer));
 
   s_label_layer = text_layer_create(grect_inset(bounds, 
-                                                GEdgeInsets(70, 0, 0, 0)));
+                                                GEdgeInsets(80, 0, 0, 0)));
   text_layer_set_text_alignment(s_label_layer, GTextAlignmentCenter);
   text_layer_set_text_color(s_label_layer, GColorWhite);
   text_layer_set_background_color(s_label_layer, GColorClear);
@@ -83,48 +83,35 @@ void main_window_push() {
 void main_window_update_ui() {
   if(health_is_available() && s_window) {
     static char s_value_buffer[8];
-    static char s_label_buffer[64];
+
     switch(s_mode) {
       case AppModeSteps:
         snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
                  health_get_metric_sum(HealthMetricStepCount));
-        snprintf(s_label_buffer, sizeof(s_label_buffer), 
-                 "Steps in the last %d seconds.", health_get_uptime_seconds());
-        
+        text_layer_set_text(s_label_layer, "Steps taken today");
         window_set_background_color(s_window, GColorWindsorTan);
         break;
       case AppModeActiveTime:
         snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
                  health_get_metric_sum(HealthMetricActiveSeconds));
-        snprintf(s_label_buffer, sizeof(s_label_buffer), 
-                 "Active seconds in the last %d seconds.", 
-                 health_get_uptime_seconds());
-        
+        text_layer_set_text(s_label_layer, "Seconds active today");
         window_set_background_color(s_window, GColorDarkGreen);
         break;
       case AppModeDistance:
         snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
                  health_get_metric_sum(HealthMetricWalkedDistanceMeters));
-        snprintf(s_label_buffer, sizeof(s_label_buffer), 
-                 "Meters travelled in the last %d seconds.", 
-                 health_get_uptime_seconds());
-        
+        text_layer_set_text(s_label_layer, "Meters travelled today");
         window_set_background_color(s_window, GColorJazzberryJam);
         break;
       case AppModeSleep:
         snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
                  health_get_metric_sum(HealthMetricSleepSeconds));
-        snprintf(s_label_buffer, sizeof(s_label_buffer), 
-                 "Sleep seconds in the last %d seconds.", 
-                 health_get_uptime_seconds());
-        
+        text_layer_set_text(s_label_layer, "Seconds asleep today");
         window_set_background_color(s_window, GColorDukeBlue);
         break;
-      default:
-        break;
+      default: break;
     }
     text_layer_set_text(s_value_layer, s_value_buffer);
-    text_layer_set_text(s_label_layer, s_label_buffer);
   } else {
     window_set_background_color(s_window, GColorDarkCandyAppleRed);
     text_layer_set_text(s_value_layer, "Health not available!");
