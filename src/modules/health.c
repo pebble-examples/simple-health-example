@@ -18,5 +18,12 @@ bool health_is_available() {
 }
 
 int health_get_metric_sum(HealthMetric metric) {
-  return (int)health_service_sum_today(metric);
+  HealthServiceAccessibilityMask mask = health_service_metric_accessible(metric, 
+    time_start_of_today(), time(NULL));
+  if(mask == HealthServiceAccessibilityMaskAvailable) {
+    return (int)health_service_sum_today(metric);
+  } else {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Data unavailable!");
+    return 0;
+  }
 }
