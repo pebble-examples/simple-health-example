@@ -1,26 +1,19 @@
 #include "main_window.h"
 
-typedef enum {
-  AppModeSteps = 0,
-  AppModeActiveTime,
-  AppModeDistance,
-  AppModeSleep,
-
-  AppModeMax
-} AppMode;
+#define MAX_METRICS HealthMetricActiveKCalories
 
 static Window *s_window;
 static TextLayer *s_value_layer, *s_label_layer;
 
-static AppMode s_mode;
+static HealthMetric s_metric;
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) { 
-  s_mode -= (s_mode > 0) ? 1 : -(AppModeMax - 1);
+  s_metric -= (s_metric > 0) ? 1 : -(MAX_METRICS);
   main_window_update_ui();
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) { 
-  s_mode += (s_mode < AppModeMax - 1) ? 1 : -(AppModeMax - 1);
+  s_metric += (s_metric < MAX_METRICS) ? 1 : -(MAX_METRICS);
   main_window_update_ui();
 }
   
@@ -84,33 +77,44 @@ void main_window_update_ui() {
   if(health_is_available() && s_window) {
     static char s_value_buffer[8];
 
-    switch(s_mode) {
-      case AppModeSteps:
-        snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
-                 health_get_metric_sum(HealthMetricStepCount));
+    snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
+                                              health_get_metric_sum(s_metric));
+
+    switch(s_metric) {
+      case HealthMetricStepCount:
         text_layer_set_text(s_label_layer, "Steps taken today");
         window_set_background_color(s_window, GColorWindsorTan);
         break;
-      case AppModeActiveTime:
-        snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
-                 health_get_metric_sum(HealthMetricActiveSeconds));
+      case HealthMetricActiveSeconds:
         text_layer_set_text(s_label_layer, "Seconds active today");
         window_set_background_color(s_window, GColorDarkGreen);
         break;
-      case AppModeDistance:
-        snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
-                 health_get_metric_sum(HealthMetricWalkedDistanceMeters));
+      case HealthMetricWalkedDistanceMeters:
         text_layer_set_text(s_label_layer, "Meters travelled today");
         window_set_background_color(s_window, GColorJazzberryJam);
         break;
-      case AppModeSleep:
-        snprintf(s_value_buffer, sizeof(s_value_buffer), "%d", 
-                 health_get_metric_sum(HealthMetricSleepSeconds));
+      case HealthMetricSleepSeconds:
         text_layer_set_text(s_label_layer, "Seconds asleep today");
+        window_set_background_color(s_window, GColorBlueMoon);
+        break;
+      case HealthMetricSleepRestfulSeconds:
+        text_layer_set_text(s_label_layer, "Restful sleep today");
         window_set_background_color(s_window, GColorDukeBlue);
         break;
-      default: break;
+      case HealthMetricRestingKCalories:
+        text_layer_set_text(s_label_layer, "Resting kcal today");
+        window_set_background_color(s_window, GColorCadetBlue);
+        break;
+      case HealthMetricActiveKCalories:
+        text_layer_set_text(s_label_layer, "Active kcal today");
+        window_set_background_color(s_window, GColorMidnightGreen);
+        break;
+      default: 
+        text_layer_set_text(s_label_layer, "Unknown metric!");
+        window_set_background_color(s_window, GColorDarkGray);
+        break;
     }
+
     text_layer_set_text(s_value_layer, s_value_buffer);
   } else {
     window_set_background_color(s_window, GColorDarkCandyAppleRed);
