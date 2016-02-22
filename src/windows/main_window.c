@@ -22,33 +22,32 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+static TextLayer* make_text_layer(int y_inset, char *font_key) {
+  Layer *window_layer = window_get_root_layer(s_window);
+  GRect bounds = layer_get_bounds(window_layer);
+
+  TextLayer *this = text_layer_create(grect_inset(bounds, 
+                                                GEdgeInsets(y_inset, 0, 0, 0)));
+  text_layer_set_text_alignment(this, GTextAlignmentCenter);
+  text_layer_set_text_color(this, GColorWhite);
+  text_layer_set_background_color(this, GColorClear);
+  text_layer_set_font(this, fonts_get_system_font(font_key));
+
+#if defined(PBL_ROUND)
+  text_layer_enable_screen_text_flow_and_paging(this, 5);
+#endif
+
+  return this;
+}
+
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
-  s_value_layer = text_layer_create(grect_inset(bounds, 
-                                                GEdgeInsets(50, 0, 0, 0)));
-  text_layer_set_text_alignment(s_value_layer, GTextAlignmentCenter);
-  text_layer_set_text_color(s_value_layer, GColorWhite);
-  text_layer_set_background_color(s_value_layer, GColorClear);
-  text_layer_set_font(s_value_layer, 
-                      fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  s_value_layer = make_text_layer(50, FONT_KEY_GOTHIC_28_BOLD);
+  s_label_layer = make_text_layer(80, FONT_KEY_GOTHIC_24_BOLD);
   layer_add_child(window_layer, text_layer_get_layer(s_value_layer));
-
-  s_label_layer = text_layer_create(grect_inset(bounds, 
-                                                GEdgeInsets(80, 0, 0, 0)));
-  text_layer_set_text_alignment(s_label_layer, GTextAlignmentCenter);
-  text_layer_set_text_color(s_label_layer, GColorWhite);
-  text_layer_set_background_color(s_label_layer, GColorClear);
-  text_layer_set_font(s_label_layer, 
-                      fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   layer_add_child(window_layer, text_layer_get_layer(s_label_layer));
-
-#if defined(PBL_ROUND)
-  text_layer_enable_screen_text_flow_and_paging(s_value_layer, 5);
-  text_layer_enable_screen_text_flow_and_paging(s_label_layer, 5);
-#endif
-
 }
 
 static void window_unload(Window *window) {
@@ -73,6 +72,11 @@ void main_window_push() {
   main_window_update_ui();
 }
 
+static void set_ui_values(char *label_text, GColor bg_color) {
+  text_layer_set_text(s_label_layer, label_text);
+  window_set_background_color(s_window, bg_color);
+}
+
 void main_window_update_ui() {
   if(health_is_available() && s_window) {
     static char s_value_buffer[8];
@@ -82,42 +86,33 @@ void main_window_update_ui() {
 
     switch(s_metric) {
       case HealthMetricStepCount:
-        text_layer_set_text(s_label_layer, "Steps taken today");
-        window_set_background_color(s_window, GColorWindsorTan);
+        set_ui_values("Steps taken today", GColorWindsorTan);
         break;
       case HealthMetricActiveSeconds:
-        text_layer_set_text(s_label_layer, "Seconds active today");
-        window_set_background_color(s_window, GColorDarkGreen);
+        set_ui_values("Seconds active today", GColorDarkGreen);
         break;
       case HealthMetricWalkedDistanceMeters:
-        text_layer_set_text(s_label_layer, "Meters travelled today");
-        window_set_background_color(s_window, GColorJazzberryJam);
+        set_ui_values("Meters travelled today", GColorJazzberryJam);
         break;
       case HealthMetricSleepSeconds:
-        text_layer_set_text(s_label_layer, "Seconds asleep today");
-        window_set_background_color(s_window, GColorBlueMoon);
+        set_ui_values("Seconds asleep today", GColorBlueMoon);
         break;
       case HealthMetricSleepRestfulSeconds:
-        text_layer_set_text(s_label_layer, "Restful sleep today");
-        window_set_background_color(s_window, GColorDukeBlue);
+        set_ui_values("Restful sleep today", GColorDukeBlue);
         break;
       case HealthMetricRestingKCalories:
-        text_layer_set_text(s_label_layer, "Resting kcal today");
-        window_set_background_color(s_window, GColorCadetBlue);
+        set_ui_values("Resting kcal today", GColorCadetBlue);
         break;
       case HealthMetricActiveKCalories:
-        text_layer_set_text(s_label_layer, "Active kcal today");
-        window_set_background_color(s_window, GColorMidnightGreen);
+        set_ui_values("Active kcal today", GColorMidnightGreen);
         break;
       default: 
-        text_layer_set_text(s_label_layer, "Unknown metric!");
-        window_set_background_color(s_window, GColorDarkGray);
         break;
     }
 
     text_layer_set_text(s_value_layer, s_value_buffer);
   } else {
-    window_set_background_color(s_window, GColorDarkCandyAppleRed);
     text_layer_set_text(s_value_layer, "Health not available!");
+    window_set_background_color(s_window, GColorDarkCandyAppleRed);
   }
 }
