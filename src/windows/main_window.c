@@ -112,7 +112,6 @@ void main_window_update_ui() {
 
     text_layer_set_text(s_value_layer, s_value_buffer);
   } else {
-    text_layer_set_text(s_value_layer, "Health not available!");
-    window_set_background_color(s_window, GColorDarkCandyAppleRed);
+    set_ui_values("Health not available!", GColorDarkCandyAppleRed);
   }
 }
